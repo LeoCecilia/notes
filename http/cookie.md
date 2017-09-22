@@ -1,5 +1,5 @@
 # http之cookie & session
-	HTTP协议是无状态协议，所以服务器端为了记录用户的状态，就需要某些机制了
+HTTP协议是无状态协议，所以服务器端为了记录用户的状态，就需要某些机制了
 ## cookie ##
 
 1.  使用cookie来记录用户的状态
@@ -20,8 +20,8 @@
 	一般只能设置4k
 
 4.  属性
-	- Set-Cookie: name=Nicholas; expires=Sat, 02 May 2009 23:38:25 GMT
-	- domain: 指定了 cookie 将要被发送至哪个或哪些域中
+	- `Set-Cookie: name=Nicholas; expires=Sat, 02 May 2009 23:38:25 GMT`
+	- domain: 指定了cookie将要被发送至哪个或哪些域中
 
 5. 失效日期
 	- 一般由服务器生成，可设置失效时间(expires)。
@@ -33,10 +33,10 @@
 传递session过程
 - 用户提交包含用户名和密码的表单，发送HTTP请求。
 - 服务器验证用户发来的用户名密码。如果正确新建一个session对象，并用其唯一标识session，敏感数据比如`authed:true`也存放在其中
-- 设置Cookie为sessionId=xxxxxx|checksum并发送HTTP响应， 仍然为每一项Cookie都设置**签名**。
-- 用户收到HTTP响应后，便看不到任何敏感数据了。在此后的请求中发送该Cookie给服务器。
-- 服务器收到此后的HTTP请求后，发现Cookie中有SessionID，进行放篡改验证。
-- 如果通过了验证，根据该ID从Redis中取出对应的用户对象， 查看该对象的状态并继续执行业务逻辑。
+- 设置Cookie为`sessionId=xxxxxx|checksum`并发送HTTP响应， 仍然为每一项Cookie都设置**签名**
+- 用户收到HTTP响应后，便看不到任何敏感数据了。在此后的请求中发送该Cookie给服务器
+- 服务器收到此后的HTTP请求后，发现Cookie中有SessionID，进行放篡改验证
+- 如果通过了验证，根据该ID从Redis中取出对应的用户对象， 查看该对象的状态并继续执行业务逻辑
 
 
 
