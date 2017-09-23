@@ -108,6 +108,7 @@ IE6的API
 
 ## postMessage
 H5,IE8支持
+`window.postMessage()` 方法被调用时，会在所有页面脚本执行完毕之后（e.g., 在该方法之后设置的事件、之前设置的`timeo`ut 事件,etc.）向目标窗口派发一个  `MessageEvent` 消息。 该`MessageEvent`消息有四个属性需要注意： `message` 属性表示该`message` 的类型； `data` 属性为 `window.postMessag`e 的第一个参数；origin 属性表示调用`window.postMessage()`方法时调用页面的当前状态； source 属性记录调用 `window.postMessage()` 方法的窗口信息。
 ``` javascript
 // URL: http://a.com/foo
 var win = window.open('http://b.com/bar');
