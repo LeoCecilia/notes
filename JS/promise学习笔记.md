@@ -105,9 +105,8 @@ promise.then(
 
 # promise捕获错误
 ``` javascript
-getJSON("/visa.json").then(function(result) {
-  // some code
-}).catch(function(error) {
+getJSON("/visa.json").then(handleSuccess)
+.catch(function(error) {
   // 处理前一个回调函数运行时发生的错误
   console.log('出错啦！', error);
 });
@@ -115,15 +114,31 @@ getJSON("/visa.json").then(function(result) {
 相当于
 
 ``` javascript
-getJSON("/visa.json").then(function(result) {
-  // some code
-}).then(function () {
+getJSON("/visa.json").then(handleSuccess)
+.catch(function () {
   
-},function () {
-  //reject的回调函数
 });
 ```
+两种的差别很微妙，也很重要
+
+* 在第一个例子中getJSON的错误会被处理，但是handleSuccess会被吞掉
+
+* catch能同时处理getJSON和handleSuccess的错误
+
+``` javascript
+getJSON()
+  .then(
+    handleSuccess,
+    handleNetworkError
+  )
+  .catch(handleProgrammerError)
+;
+```
+
+
 promise对象错误具有冒泡的性质，当前的错误会被下一个catch所捕捉
+
+
 
 # 常用的promise函数
 - Promise.all([p1,p2,p3])
