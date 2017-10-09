@@ -74,8 +74,34 @@ getJSON("/visa.json").then(function(json) {
   // proceed
 });
 ```
-* 上面的代码中前一个回调函数的返回结果会作为参数传递给后一个函数
-* 如果前一个回调函数的返回结果为promise实例，则后一个回调函数要等待该实例执行完成后才能被调用
+
+``` javascript
+promise.then(
+  onFulfilled?: Function,
+  onRejected?: Function
+) => Promise
+```
+
+.then()方法遵循一下规则：
+
+* onFulfilled() 和 onRejected() 都是可选的。
+如果提供的参数不是函数，必须忽略参数。
+
+* onFulfilled() 会在 promise 完成后调用，把 promise 的值作为第一个参数。
+
+* onRejected() 会在 promise 拒绝后调用，把拒绝的原因作为第一个参数。这个原因可以是任何可用的 JavaScript 值，不过因为拒绝本质上是异常，我推荐使用 Error 对象。
+
+* onFulfilled() 和 onRejected() 只会调用一次。
+.then() 必须返回一个新的 promise，promise2。
+如果 onFulfilled() 或 onRejected() 返回一个值 x，并且 x 是个 promise，那么 promise2就会等待x状态发生改变，然后promise2的状态和值就会与 x 相同。
+
+* 否则，promise2 会成为已完成状态，x 会作为参数传递给promise2。
+
+* 如果 onFulfilled 或 onRejected 抛出一个异常 e，promise2 会被拒绝，原因是 e。
+如果 onFulfilled 不是函数，且 promise1 已完成，那么 promise2 必须是已完成，值和 promise1 的相同。
+
+* 如果 onRejected 不是函数，且 promise1 已拒绝，那么 promise2 必须是已拒绝，原因和 promise1 的相同。
+
 
 # promise捕获错误
 ``` javascript
@@ -91,9 +117,10 @@ getJSON("/visa.json").then(function(result) {
 ``` javascript
 getJSON("/visa.json").then(function(result) {
   // some code
-},function(error) {
-  // 处理前一个回调函数运行时发生的错误
-  console.log('出错啦！', error);
+}).then(function () {
+  
+},function () {
+  //reject的回调函数
 });
 ```
 promise对象错误具有冒泡的性质，当前的错误会被下一个catch所捕捉
@@ -122,8 +149,40 @@ p.then(null, function (error){
 // 出错了
 ```
 
+# 如何取消一个promise
+
+**思路** :解决这个promise，并使用‘cancelled’作为原因，如果你像区分普通错误。就在错误处理函数添加分支
+
+常见错误
+
+1. 标准的promise没有`.cancel()`,而且也违反了其他规则：只有**创建**promise的函数才可以完成，拒绝或取消这个promise。把`.cancel`暴露出来会破坏了封装星
+
+2. 有些聪明的人想出利用 Promise.race() 来做取消。问题在于**取消的控制来自于创建 promise 的函数，这个函数是唯一你能做清理工作的地方**，例如清空 timeout 或者清空对数据的引用来释放内存等等。
+
+3. 当你忘记处理拒绝状态的promise时，Chrome 会在控制台到处抛出警告消息！
 
 
+所以我们可以承认的那个代表是否取消的值可以是一个promise本身，可能是这样：
 
+``` javascript
+const wait = (
+  time,
+  cancel = Promise.reject()
+) => new Promise((resolve, reject) => {
+  const timer = setTimeout(resolve, time);
+  const noop = () => {};
 
+  cancel.then(() => {
+    clearTimeout(timer);
+    reject(new Error('Cancelled'));
+  }, noop);
+});
 
+const shouldCancel = Promise.resolve(); // Yes, cancel
+// const shouldCancel = Promise.reject(); // No cancel
+
+wait(2000, shouldCancel).then(
+  () => console.log('Hello!'),
+  (e) => console.log(e) // [Error: Cancelled]
+);
+```
