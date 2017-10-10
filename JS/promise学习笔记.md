@@ -102,6 +102,33 @@ promise.then(
 
 * 如果 onRejected 不是函数，且 promise1 已拒绝，那么 promise2 必须是已拒绝，原因和 promise1 的相同。
 
+手写promise的例子
+
+``` javascript
+function ajax(url,type){
+    return new Promise((resolve,reject) => {
+        var XHR = new XHRHttpRequest();
+        XHR.open(type,url,true);
+        XHR.send();
+        XHR.onreadystatechange = () => {
+            if(XHR.readyState == 4) {
+                if(XHR.status == 200) {
+                    //这里可以不写的，可以直接使用.catch函数来捕获其异常
+                    try {
+                        let response = JSON.parse(XHR.responseText);
+                        resolve(response);
+                    } catch(e) {
+                        reject(e);
+                    }
+                } else {
+                    reject(new Error(XHR.statusText));
+                }
+            }
+        }
+    });
+}
+```
+
 
 # promise捕获错误
 ``` javascript
