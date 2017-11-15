@@ -37,10 +37,10 @@ var getJSON = function(url) {
     client.setRequestHeader("Accept", "application/json");
     client.send();
     function handler() {
-      if (this.status === 200) { 
-              resolve(this.response); 
-          } else { 
-              reject(new Error(this.statusText)); 
+      if (this.status === 200) {
+              resolve(this.response);
+          } else {
+              reject(new Error(this.statusText));
           }
     };
   });
@@ -101,6 +101,7 @@ promise.then(
 如果 onFulfilled 不是函数，且 promise1 已完成，那么 promise2 必须是已完成，值和 promise1 的相同。
 
 * 如果 onRejected 不是函数，且 promise1 已拒绝，那么 promise2 必须是已拒绝，原因和 promise1 的相同。
+* then中的函数体不是promise，所以如果想要串行传输的数据，而不引起回调地狱的，应在函数体当中返回promise。
 
 手写promise的例子
 
@@ -143,7 +144,7 @@ getJSON("/visa.json").then(handleSuccess)
 ``` javascript
 getJSON("/visa.json").then(handleSuccess)
 .catch(function () {
-  
+
 });
 ```
 两种的差别很微妙，也很重要
@@ -177,6 +178,11 @@ promise对象错误具有冒泡的性质，当前的错误会被下一个catch�
 1. 只有p1、p2、p3的状态都变成fulfilled，p的状态才会变成fulfilled，此时p1、p2、p3的返回值组成一个数组，传递给p的回调函数。
 
 2. 只要p1、p2、p3之中有一个被rejected，p的状态就变成rejected，此时第一个被reject的实例的返回值，会传递给p的回调函数。
+
+3. 适用场景：数组中的promise对象**不**需要**串行**执行
+
+4. 需要串行执行时，解决方法
+  - 使用`Math.reduce`让其串行执行
 
 `var p = Promise.race`则是只要p1,p2,p3任一个状态发生变化，p也会跟着变化，而且即便其他实例的状态也跟着改变，p的状态也不再跟着改变
 
