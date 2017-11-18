@@ -152,16 +152,34 @@ getJSON("/visa.json").then(handleSuccess)
 * 在第一个例子中getJSON的错误会被处理，但是handleSuccess会被吞掉
 
 * catch能同时处理getJSON和handleSuccess的错误
+  ``` javascript
+  getJSON()
+    .then(
+      handleSuccess,
+      handleNetworkError
+    )
+    .catch(handleProgrammerError)
+  ;
+  ```
 
-``` javascript
-getJSON()
-  .then(
-    handleSuccess,
-    handleNetworkError
-  )
-  .catch(handleProgrammerError)
-;
-```
+* 在then中的promise，要主动地去catch错误，因为后续的catch是不会捕获该promise的错误的。可采用如下方式去捕获
+
+  ``` JavaScript
+  return new Promise(resolve,reject)=>{
+    try{
+      if(){
+        resolve();
+      }
+      else{
+        reject();
+      }
+    }catch(e){
+      reject(new Error(e));
+    }
+  }
+  ```
+
+
 
 
 promise对象错误具有冒泡的性质，当前的错误会被下一个catch所捕捉
